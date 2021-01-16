@@ -1,0 +1,54 @@
+CREATE TABLE accounts
+(
+    id CHAR(3),
+    name VARCHAR2(50),
+    balance NUMBER(10,2)
+);
+
+INSERT INTO accounts VALUES(101, 'Ali Can', 12000);
+INSERT INTO accounts VALUES(102, 'Veli Han', 2000);
+INSERT INTO accounts VALUES(103, 'Mary Star', 7000);
+INSERT INTO accounts VALUES(104, 'Angie Ocean', 8500);
+
+SELECT * FROM accounts;
+
+--Create a procedure to withdraw money from an account.
+--Account id and withdraw amount will be given by user.
+--If the withdraw amount is greater than the balance withdraw cannot be done
+--otherwise do withdraw and display the remaining balance on the output console.
+
+DECLARE
+account_id accounts.id%TYPE := '&account_id';
+withdraw_amount accounts.balance%TYPE := '&withdraw_amount';
+remaining_balance accounts.balance%TYPE;
+account_balance accounts.balance%TYPE;
+
+PROCEDURE withdrawP(a_id IN CHAR, w_amount IN NUMBER, r_balance OUT NUMBER) IS
+
+BEGIN
+
+    SELECT balance
+    INTO account_balance
+    FROM accounts
+    WHERE id = a_id;
+    
+    IF w_amount <= account_balance THEN
+        UPDATE accounts
+        SET balance = balance - w_amount
+        WHERE id = a_id;
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('Insufficient amount!');
+    END IF; 
+    
+    SELECT balance
+    INTO r_balance
+    FROM accounts
+    WHERE id = a_id;
+
+
+END;
+
+BEGIN
+    withdrawP(account_id, withdraw_amount, remaining_balance);
+    DBMS_OUTPUT.PUT_LINE('Remaining balance is '||remaining_balance);
+END;

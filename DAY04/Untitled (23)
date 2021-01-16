@@ -1,0 +1,240 @@
+CREATE TABLE workers
+(
+    id CHAR(5),
+    name VARCHAR2(50),
+    salary NUMBER(5),
+    CONSTRAINT id4_pk PRIMARY KEY(id)
+);
+
+INSERT INTO workers VALUES(10001, 'Ali Can', 12000);
+INSERT INTO workers VALUES(10002, 'Veli Han', 2000);
+INSERT INTO workers VALUES(10003, 'Mary Star', 7000);
+INSERT INTO workers VALUES(10004, 'Angie Ocean', 8500);
+INSERT INTO workers VALUES(10005, 'Tam Hanks', 17000);
+INSERT INTO workers VALUES(10006, 'Eddie Murphy', 9200);
+INSERT INTO workers VALUES(10007, 'Mark J', 5000);
+INSERT INTO workers VALUES(10008, 'Walker Tom', 7200);
+
+SELECT * FROM workers;
+
+--Select the third highest salary from workers table
+SELECT MAX(salary) AS third_highest_salary 
+FROM workers
+WHERE salary < (SELECT MAX(salary) 
+                FROM workers
+                WHERE salary < (SELECT MAX(salary) 
+                                FROM workers));
+                                
+--Select all records whose salary is the third highest salary from workers table
+SELECT * 
+FROM workers
+WHERE salary = (SELECT MAX(salary) 
+                FROM workers
+                WHERE salary < (SELECT MAX(salary) 
+                                FROM workers
+                                WHERE salary < (SELECT MAX(salary) 
+                                                FROM workers)));
+                                                
+--IN Condition  
+--Instead of multiple "OR" we can use "IN" to make the code shorter and more readable
+
+--Select the names and salaries of the workers whose ids are 10001, 10002, 10004
+--1.Way:
+SELECT name, salary
+FROM workers
+WHERE id = 10001 OR id = 10002 OR id = 10004;
+
+--2.Way:
+SELECT name, salary
+FROM workers
+WHERE id IN(10001, 10002, 10004);
+                                                
+--BETWEEN Condition 
+--When you use BETWEEN Condition, boundaries are inclusive
+--Select the names and salaries of the workers whose ids are greater than or equal to 10002 and less than or equal to 10005
+--1.Way:
+SELECT name, salary
+FROM workers
+WHERE id>=10002 AND id<=10005;
+
+--2.Way
+SELECT name, salary
+FROM workers
+WHERE id BETWEEN 10002 AND 10005;
+                                                
+--NOT BETWEEN Condition 
+--When you use NOT BETWEEN Condition boundaries are exclusive
+--Select the names and salaries of the workers whose ids are LESS than 10002 OR GREATER than 10005
+--1.Way:
+SELECT name, salary
+FROM workers
+WHERE id < 10002 OR id > 10005;
+                                                
+--2.Way:
+SELECT name, salary
+FROM workers
+WHERE id NOT BETWEEN 10002 AND 10005;
+
+--PRACTICE
+--Select the salary whose names are between 'Eddie Murphy' and 'Tam Hanks'
+SELECT salary 
+FROM workers 
+WHERE name BETWEEN 'Eddie Murphy' AND 'Tam Hanks';
+
+--EXISTS Condition
+--When you use EXISTS Condition you need to type a subquery after WHERE Clause. 
+--If the subquery has any result it will return data otherwise it will not.
+
+CREATE TABLE customers_products
+( 
+  product_id number(10),
+  customer_name varchar2(50),
+  product_name varchar2(50)
+);
+
+INSERT INTO customers_products VALUES (10, 'Mark', 'Orange');
+INSERT INTO customers_products VALUES (10, 'Mark', 'Orange');
+INSERT INTO customers_products VALUES (20, 'John', 'Apple');
+INSERT INTO customers_products VALUES (30, 'Amy', 'Palm');
+INSERT INTO customers_products VALUES (20, 'Mark', 'Apple');
+INSERT INTO customers_products VALUES (10, 'Adem', 'Orange');
+INSERT INTO customers_products VALUES (40, 'John', 'Apricot');
+INSERT INTO customers_products VALUES (20, 'Eddie', 'Apple');                                               
+                                                
+CREATE TABLE customers_likes
+( 
+  product_id number(10),
+  customer_name varchar2(50),
+  liked_product varchar2(50)
+);                                               
+                                                
+INSERT INTO customers_likes VALUES (10, 'Mark', 'Orange');
+INSERT INTO customers_likes VALUES (50, 'Mark', 'Pineapple');
+INSERT INTO customers_likes VALUES (60, 'John', 'Avocado');
+INSERT INTO customers_likes VALUES (30, 'Lary', 'Cherries');
+INSERT INTO customers_likes VALUES (20, 'Mark', 'Apple');
+INSERT INTO customers_likes VALUES (10, 'Adem', 'Orange');
+INSERT INTO customers_likes VALUES (40, 'John', 'Apricot');
+INSERT INTO customers_likes VALUES (20, 'Eddie', 'Apple');                                                
+                                                
+SELECT * FROM customers_products;                                               
+SELECT * FROM customers_likes;                                            
+ 
+--Select customer names who have same product ids in the tables                                               
+SELECT customer_name
+FROM customers_products
+WHERE EXISTS(SELECT product_id 
+             FROM customers_likes 
+             WHERE customers_products.product_id = customers_likes.product_id);
+                                                
+--How to use Subqueries after SELECT before FROM
+--Select name, salary, average salary from workers table. 
+--Display average salary for every workers
+SELECT name, salary, (SELECT AVG(salary) FROM workers)average_salary 
+FROM workers;
+
+--Create a report to display name, salary, maximum salary, minimum salary for every record
+SELECT name, salary,(SELECT MAX(salary) FROM workers)max_salary, (SELECT MIN(salary) FROM workers)min_salary
+FROM workers;
+
+--Create a report which displays product names and the number of liked products
+--After learning Group By
+
+--LIKE Condition
+                                                    --How to Use WildCards(%, _)
+--Select records whose names are startinG with 'A'
+-- % ==> works for 0 and more characters
+SELECT *
+FROM workers
+WHERE name LIKE 'A%';
+     
+SELECT * FROM workers;     
+                                               
+--Select records whose names are ending with 'n' 
+SELECT *
+FROM workers
+WHERE name LIKE '%n';
+
+--Select records whose names have 'an' in any position                                                
+SELECT *
+FROM workers
+WHERE name LIKE '%an%';  
+
+--Select records whose names starts with any character followed by 'li'
+-- '_' is used for single character
+SELECT *
+FROM workers
+WHERE name LIKE '_li%';
+
+--Select records whose names 2nd character is 'a', 4th character is 'y'
+SELECT *
+FROM workers
+WHERE name LIKE '_a_y%';
+
+--Select records whose names 3rd character is 'r' and have 6 characters in total 
+SELECT *
+FROM workers
+WHERE name LIKE '__r___';
+
+--Select records whose names 3rd character is 'r' and have at least 6 characters in total
+SELECT *
+FROM workers
+WHERE name LIKE '__r___%';
+
+--Select records whose names are starting with A, ending with 'n' and have at least 8 characters 
+SELECT *
+FROM workers
+WHERE name LIKE 'A______%n';
+
+
+                                        --How to use REGEX (Regular Expressions)
+CREATE TABLE words
+(
+    word_id CHAR(3),
+    word VARCHAR2(15),
+    word_length NUMBER(2)
+);
+
+INSERT INTO words VALUES('101', 'hat', 3);
+INSERT INTO words VALUES('102', 'hot', 3);
+INSERT INTO words VALUES('103', 'hit', 3);
+INSERT INTO words VALUES('104', 'hut', 3);
+INSERT INTO words VALUES('104', 'selena', 6);
+INSERT INTO words VALUES('104', 'yusuf', 5);
+INSERT INTO words VALUES('104', 'adem', 4);
+INSERT INTO words VALUES('104', 'hct', 3);
+
+SELECT * FROM words;
+
+--Select the words starting with 'h', ending with 't' and 2nd character is 'a' or 'o' and 3 characters in total
+--1.Way: Recommended
+SELECT *
+FROM words
+WHERE REGEXP_LIKE(word,'h[aio]t');
+--2.Way:
+SELECT *
+FROM words
+WHERE REGEXP_LIKE(word,'h(a|i|o)t');
+
+--Select the words starting with 'h', ending with 't' and 2nd character is from a to i in alphabet
+SELECT *
+FROM words
+WHERE REGEXP_LIKE(word,'h[a-i]t');
+
+--Select the words contains 'a' or 'e' in any position
+SELECT *
+FROM words
+WHERE REGEXP_LIKE (word, '[aie](*)');   -- '[aie](*)' and '[aie]' are same but 1st is better
+
+--Select the words starts with 's' or 'y' or 'a'
+--     ^ stands for 'starts with'
+SELECT *
+FROM words
+WHERE REGEXP_LIKE(word, '^[sya](*)');
+  
+--Select the words ends with 'a' or 'f' or 'm'
+--     $ stands for 'ends with'
+SELECT *
+FROM words
+WHERE REGEXP_LIKE(word, '[afm]$(*)');
+                                

@@ -1,0 +1,6 @@
+CREATE TABLE accounts
+(
+    id CHAR(3),
+    name VARCHAR2(50),
+    balance NUMBER(10,2)
+);

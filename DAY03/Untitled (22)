@@ -1,0 +1,221 @@
+--Constraints are some restrictions for fields
+--1)Primary Key
+--2)Foreign Key ==> Repeated data and multiple null are allowed
+--3)Unique      ==> Unique Data, but you can use "null" multiple times.
+--4)Not Null
+--5)Check
+
+
+                                                        --FOREIGN KEY CONSTRAINT
+                                                        
+--Create a workers table whose fields are id(char size is 5 Primary Key), name(varchar2 size is 50), salary(number precision is 5, scale is 0)
+CREATE TABLE workers 
+(
+    id CHAR(5),
+    name VARCHAR2(50),
+    salary NUMBER(5),
+    CONSTRAINT id2_pk PRIMARY KEY(id)
+);
+
+INSERT INTO workers VALUES('10001', 'Ali Can', 12000);
+INSERT INTO workers VALUES('10002', 'Veli Han', 2000);
+INSERT INTO workers VALUES('10003', 'Mary Star', 7000);
+INSERT INTO workers VALUES('10004', 'Angie Ocean', 8500);
+
+SELECT * FROM workers;
+
+--Create addresses table whose fields are id(char size is 5 FOREIGN KEY), street(varchar2 size 30), city(varchar2 size 15), state(char size is 2) 
+CREATE TABLE addresses 
+(
+    id CHAR(5),
+    street VARCHAR2(30),
+    city VARCHAR2(15),
+    state CHAR(2),
+    CONSTRAINT id2_fk FOREIGN KEY(id) REFERENCES workers(id) 
+);
+
+INSERT INTO addresses VALUES('10001', 'Flower', 'Miami', 'FL');
+INSERT INTO addresses VALUES('10001', 'Orange', 'Jacksonville', 'FL');
+INSERT INTO addresses VALUES(null, 'Apple', 'Tampa', 'FL');
+INSERT INTO addresses VALUES(null, 'Cherry', 'St. Lucie', 'FL');
+INSERT INTO addresses VALUES('10002', 'Apricot', 'St.Lucie', 'FL');
+
+--In Foreign Key, we cannot use different data from the primary key
+
+SELECT * FROM addresses;
+
+                                    --CHECK CONSTRAINT
+                                    
+--Create parents table whose fields are id(char size is 5 FOREIGN KEY), num_of_kids(number precision 2), name_of_spouse(varchar2 size 50)                                    
+CREATE TABLE parents
+(
+  id CHAR(5),
+  num_of_kids NUMBER(2),
+  name_of_spouse VARCHAR2(50),
+  CONSTRAINT id3_fk FOREIGN KEY(id) REFERENCES workers(id),
+  CONSTRAINT check_num_of_kids CHECK(num_of_kids>=0),
+  CONSTRAINT check_name_of_spouse CHECK(LENGTH(name_of_spouse)<8)
+);
+
+INSERT INTO parents VALUES('10003', 4, 'Ayse');
+INSERT INTO parents VALUES('10003', -2, 'Ayse');
+INSERT INTO parents VALUES('10003', 3, 'Marthabella');
+
+
+SELECT * FROM parents;
+
+SELECT * FROM workers;
+
+                        --How to update a single data in a table
+UPDATE workers
+SET salary = 13500
+WHERE id = 10001;
+
+--Update the name of the worker whose salary is 8500 to Leo Star
+UPDATE workers
+SET name = 'Leo Star'
+WHERE salary = 8500;
+
+                        --How to update multiple data in a table
+--If the salary is greater than 5000 update them to 9000
+UPDATE workers
+SET salary = 9000
+WHERE salary > 5000;
+
+--If the length of the names are greater than or equal to 8 update the names to 'Long Name'
+UPDATE workers
+SET name = 'Long Name'
+WHERE LENGTH(name)>=8;
+
+--If the street name is 'Flower' update salary to 11000
+UPDATE workers
+SET salary = 11000
+WHERE id = (SELECT id
+            FROM addresses
+            WHERE street = 'Flower'
+            );
+
+--If the name is 'Ali Can' update the city to Tallahasse and street to Ant
+UPDATE addresses
+SET city = 'Tallahasse',
+    street = 'Ant'
+WHERE id = (SELECT id
+            FROM workers
+            WHERE name = 'Ali Can'
+            );
+
+SELECT * FROM addresses;
+
+CREATE TABLE suppliers
+(
+    supplier_id NUMBER(10),
+    supplier_name VARCHAR2(50),
+    contact_name VARCHAR2(50),
+    CONSTRAINT supplier_id_pk PRIMARY KEY(supplier_id) 
+);
+
+INSERT INTO suppliers VALUES(1, 'IBM', 'John Walker');
+INSERT INTO suppliers VALUES(2, 'APPLE', 'Steve Max');
+INSERT INTO suppliers VALUES(3, 'SAMSUNG', 'Tae Shaun');
+
+SELECT * FROM suppliers;
+
+CREATE TABLE products2
+(
+    supplier_id NUMBER(10),
+    product_id NUMBER(10),
+    product_name VARCHAR2(30),
+    customer_name VARCHAR2(50),
+    CONSTRAINT supplier_id_fk FOREIGN KEY(supplier_id) REFERENCES suppliers(supplier_id)
+);
+
+INSERT INTO products2 VALUES(1, 11, 'Laptop', 'Ali Can');
+INSERT INTO products2 VALUES(2, 22, 'Ipad', 'Eddie Murphy');
+INSERT INTO products2 VALUES(3, 33, 'Galaxy 12', 'Mary Star');
+
+SELECT * FROM products2;
+
+-- Update the name of the product to "Radio" if the contact name is 'John Walker' 
+UPDATE products2
+SET product_name = 'Radio'
+WHERE supplier_id = (SELECT supplier_id
+                     FROM suppliers
+                     WHERE contact_name = 'John Walker'
+                     );
+
+--Update the contact name to 'Ali Can' if the product name is Ipad
+UPDATE suppliers
+SET contact_name = 'Ali Can'
+WHERE supplier_id = (SELECT supplier_id
+                     FROM products2
+                     WHERE product_name = 'Ipad'
+                    );
+
+--Update the customer name to 'Ayse Han' and product name to TV if the supplier name is SAMSUNG
+UPDATE products2
+SET customer_name = 'Ayse Han',
+    product_name = 'TV'
+WHERE supplier_id = (SELECT supplier_id
+                     FROM suppliers
+                     WHERE supplier_name = 'SAMSUNG'
+                     );    
+
+SELECT * FROM products2;
+
+
+--Update the SUPPLIER name to 'GOOGLE' if the CUSTOMER name is Eddie Murphy
+UPDATE suppliers
+SET supplier_name = 'GOOGLE'
+WHERE supplier_id = (SELECT supplier_id
+                     FROM products2
+                     WHERE customer_name = 'Eddie Murphy'
+                     );
+
+SELECT * FROM suppliers;
+
+--If the contact name equals to customer name update the supplier name by using product name
+UPDATE suppliers
+SET supplier_name = (SELECT product_name
+                     FROM products2
+                     WHERE suppliers.contact_name = products2.customer_name
+                    )
+WHERE supplier_id = 2;                   
+
+--If the length of contact name equal to the length of customer name 
+--update the product name by using supplier name
+UPDATE products2
+SET product_name = (SELECT supplier_name
+                    FROM suppliers
+                    WHERE LENGTH(suppliers.contact_name) = LENGTH(products2.customer_name)
+                    )
+WHERE supplier_id < 3;                  
+
+                            --IS NULL Condition
+--You have a students table and some students names are not inserted.                          
+
+CREATE TABLE people
+(
+ ssn char(9),
+ name varchar2(50),
+ address varchar2(50)
+);
+
+INSERT INTO people VALUES(123456789, 'Mark Star', 'Florida');
+INSERT INTO people VALUES(234567890, 'Angie Way', 'Virginia');
+INSERT INTO people VALUES(345678901, 'Maryy Tien', 'New Jersey');
+INSERT INTO people(ssn, address) VALUES(456789012, 'Michigan');
+INSERT INTO people(ssn, address) VALUES(567890123, 'California');
+INSERT INTO people VALUES(34578901, null, 'New Jersey');
+INSERT INTO people VALUES(34567890, null, null);
+INSERT INTO people VALUES(45678901, 'Maryy Tien', null);
+
+SELECT * FROM people;
+
+UPDATE people
+SET name = 'Not inserted yet'
+WHERE name IS NULL;
+
+UPDATE people
+SET name = 'Not inserted yet', 
+    address = 'Not inserted yet'
+WHERE name IS NULL OR address IS NULL;

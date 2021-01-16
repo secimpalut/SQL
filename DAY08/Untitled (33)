@@ -1,0 +1,27 @@
+--1)Create a students table whose columns are name, avg_score NUMBER(4,2), modify_date DATE, modifier 
+--2)Insert 3 records into the students table by getting modify_date and modifier from DUAL Table
+CREATE TABLE students
+(
+    name VARCHAR2(50),
+    avg_score NUMBER(4,2),
+    modify_date DATE,
+    modifier VARCHAR2(50)
+);
+
+SELECT * FROM students;
+
+DECLARE
+    cur_date students.modify_date%TYPE;
+    modifier_name students.modifier%TYPE;
+    
+BEGIN
+    SELECT sysdate, user
+    INTO cur_date, modifier_name
+    FROM DUAL;
+    
+    INSERT INTO students VALUES('Ali Can', 87.54, cur_date, modifier_name);
+    INSERT INTO students VALUES('Veli Han', 63.45, cur_date, modifier_name);
+    INSERT INTO students VALUES('Ayse Tan', 97.54, cur_date, modifier_name);
+END;    
+
+SELECT * FROM students;

@@ -1,0 +1,45 @@
+CREATE TABLE workers
+(
+    id CHAR(5),
+    name VARCHAR2(50),
+    salary NUMBER(5),
+    CONSTRAINT id4_pk PRIMARY KEY(id)
+);
+
+INSERT INTO workers VALUES(10001, 'Ali Can', 12000);
+INSERT INTO workers VALUES(10002, 'Veli Han', 2000);
+INSERT INTO workers VALUES(10003, 'Mary Star', 7000);
+INSERT INTO workers VALUES(10004, 'Angie Ocean', 8500);
+
+SELECT * FROM workers;
+
+--Create a procedure to increase the salary of a worker whose id is given by user and the increase amount is given by user
+
+--Between the SQL statements, you may or may not use "COMMIT;" statement.
+--Normally SQL executes "COMMIT;" statement automatically but to make sure "COMMIT;" statement is executed you can type it explicitly
+DECLARE
+worker_id  workers.id%TYPE := '&worker_id';
+raise_amount workers.salary%type := '&raise_amount';
+raised_salary workers.salary%type;
+
+PROCEDURE raiseSalaryP(w_id IN CHAR, r_amount IN NUMBER, r_salary OUT NUMBER) IS
+
+BEGIN
+    UPDATE workers
+    SET salary = salary + r_amount
+    WHERE id = w_id;
+    
+    COMMIT;
+    
+    SELECT salary
+    INTO r_salary
+    FROM workers
+    WHERE id = w_id;
+END;
+
+BEGIN 
+    raiseSalaryP(worker_id, raise_amount, raised_salary);
+    DBMS_OUTPUT.put_line('Raised salary is '||raised_salary);
+END;
+
+SELECT * FROM workers;

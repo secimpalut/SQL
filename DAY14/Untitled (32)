@@ -1,0 +1,4 @@
+st.executeUpdate("INSERT ALL INTO students VALUES('103', 'Mary Star', 9) "
+				                  + "INTO students VALUES('104', 'Angie Ocean', 12)"
+				                  + "INTO students VALUES('105', 'Tom Hanks', 7)"
+				                  + "SELECT * FROM DUAL");

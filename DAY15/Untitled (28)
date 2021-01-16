@@ -1,0 +1,67 @@
+package h01nt.annotations;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+/*
+ 	If you use "@Entity" annotation for a class it must have a)Constructor
+ 															 b)getters and setters for each variable
+ 															 c)Do not define any variable "static" or "final"
+ 															 d)toString() is optional but most of the times we need
+ 															   because of that create it everytime
+ 	If you want to use different name for the table in database you need to use "@Table" annotation at the top of the
+ 	class name like " @Table(name = "students_table") "
+ 		Note: When you use " @Table(name = "students_table") " you changed just the name of the table in Database
+ 		      you did not change Entity object name. It is stil "Students01"
+ 		Note: When you use " @Column(name = "std_name") " you changed just the name of the column in Database
+ 		      you did not change variable name. It is stil "name"
+ 		Note: When you use " @Entity(name = "students_table") " you changed both the name of the table in Database
+ 		      and Entity object name.
+ 		      
+ 	If you use "@Transient" annotation for a variable, Hibernate does not create column for the variable in table
+ 	
+ 	To make a column Primary Key, you need to use "@Id" annotation.
+ 	If you do not use "@Id" annotation, you cannot create table in database by using Hibernate	      
+ 	
+ */
+
+@Entity
+@Table(name = "students_table")
+public class Students01 {
+	
+	@Id
+	private int std_id;
+	@Column(name = "std_name")
+	private String name;
+	
+	//@Transient
+	private int grade;
+	
+	public int getStd_id() {
+		return std_id;
+	}
+	public void setStd_id(int std_id) {
+		this.std_id = std_id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public int getGrade() {
+		return grade;
+	}
+	public void setGrade(int grade) {
+		this.grade = grade;
+	}
+	
+	@Override
+	public String toString() {
+		return "Students01 [std_id=" + std_id + ", name=" + name + ", grade=" + grade + "]";
+	}
+
+}

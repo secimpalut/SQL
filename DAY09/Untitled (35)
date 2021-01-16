@@ -1,0 +1,126 @@
+--Create a trigger like;
+
+--1. Real Life Example about Triggers
+--When you update salary of a worker, trigger will store the old data in workers_history table
+CREATE TABLE workers
+(
+    id CHAR(5),
+    name VARCHAR2(50),
+    salary NUMBER(5)
+);
+
+INSERT INTO workers VALUES(10001, 'Ali Can', 12000);
+INSERT INTO workers VALUES(10002, 'Veli Han', 2000);
+INSERT INTO workers VALUES(10003, 'Mary Star', 7000);
+INSERT INTO workers VALUES(10004, 'Angie Ocean', 8500);
+
+SELECT * FROM workers;
+
+
+CREATE TABLE workers_history
+(
+    id CHAR(5),
+    name VARCHAR2(50),
+    salary NUMBER(5),
+    update_date DATE
+);
+
+SELECT * FROM workers_history;
+
+CREATE OR REPLACE TRIGGER w_h_trigger BEFORE UPDATE OF salary ON workers FOR EACH ROW
+BEGIN 
+    INSERT INTO workers_history VALUES(:old.id, :old.name, :old.salary, sysdate);
+END;
+
+UPDATE workers
+SET salary = salary + 900
+WHERE id = 10002;
+
+--2. Real Life Example about Triggers
+
+--When you update the salary of a worker, insert the following data into salary_changes table
+--Name, Old Salary, New Salary, Raise Amount, date 
+DROP TABLE salary_changes;
+
+CREATE TABLE salary_changes
+(
+    name VARCHAR2(50),
+    old_salary NUMBER(5),
+    new_salary NUMBER(5),
+    raise_amount NUMBER(5),
+    update_date DATE
+);
+
+SELECT * FROM salary_changes;
+
+CREATE OR REPLACE TRIGGER w_c_trigger BEFORE UPDATE OF salary ON workers FOR EACH ROW
+BEGIN
+    INSERT INTO salary_changes VALUES(:old.name, :old.salary, :new.salary, :new.salary - :old.salary, SYSDATE);
+END;
+
+UPDATE workers
+SET salary = salary + 1000
+WHERE id < 10003;
+
+SELECT * FROM salary_changes;
+
+--3. Real Life Example about Triggers
+--Create a trigger like 
+--When you UPDATE any record or INSERT any record it will be triggered
+--It will store updated or inserted records into "changes" table
+
+CREATE TABLE changes
+(
+    order_number NUMBER(3),
+    id CHAR(5),
+    name VARCHAR2(50),
+    salary NUMBER(5),
+    change_date DATE
+);
+
+CREATE SEQUENCE seq_changes;
+
+CREATE OR REPLACE TRIGGER w_ui_trigger BEFORE INSERT OR UPDATE ON workers FOR EACH ROW
+BEGIN
+    INSERT INTO changes VALUES(seq_changes.NEXTVAL, :new.id, :new.name, :new.salary, sysdate);
+END;
+
+SELECT * FROM changes;
+
+SELECT * FROM workers;
+
+INSERT INTO workers VALUES(10005, 'XXX YYY', 6600);
+
+UPDATE workers
+SET name = 'MMM NNNN'
+WHERE id < 10003;
+
+--4. Real Life Example about Triggers
+--Create a record level trigger like 
+--When you DELETE or INSERT any record it will be triggered
+--It will store deleted or inserted records into "records1" table
+--Use sequence and date in records table
+CREATE TABLE records1
+(
+    order_number NUMBER(3),
+    id CHAR(5),
+    name VARCHAR2(50),
+    salary NUMBER(5),
+    change_date DATE
+);
+
+CREATE SEQUENCE seq_records;
+
+CREATE OR REPLACE TRIGGER w_di_trigger BEFORE DELETE OR INSERT ON workers FOR EACH ROW
+BEGIN
+    INSERT INTO records1 VALUES(seq_records.NEXTVAL, :old.id, :old.name, :old.salary, sysdate);
+END;
+
+SELECT * FROM workers;
+
+SELECT * FROM records1;
+
+DELETE FROM workers
+WHERE id = 10001;
+
+INSERT INTO workers VALUES(10005, 'Ali Can', 8800);

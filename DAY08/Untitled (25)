@@ -1,0 +1,4 @@
+INSERT INTO accounts VALUES(101, 'Ali Can', 12000);
+INSERT INTO accounts VALUES(102, 'Veli Han', 2000);
+INSERT INTO accounts VALUES(103, 'Mary Star', 7000);
+INSERT INTO accounts VALUES(104, 'Angie Ocean', 8500);

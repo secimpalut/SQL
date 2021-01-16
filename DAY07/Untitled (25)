@@ -1,0 +1,25 @@
+--Procedures do not return any value
+--Parameters in Procedure may have 3 different types; IN, OUT, IN/OUT
+--Procedures cannot be used to gether with SQL Statements like SELECT, UPDATE, INSERT, DELETE etc.
+--From inside the procedures, we can call functions 
+
+--Create a procedure which selects the minimum value of 2 numbers
+DECLARE
+a NUMBER := '&firstNumber';
+b NUMBER := '&secondNumber';
+c NUMBER;
+
+PROCEDURE findMinP(x IN NUMBER, y IN NUMBER, z OUT NUMBER) IS 
+
+BEGIN
+    IF x<y THEN
+    z := x;
+    ELSE
+    z := y;
+    END IF;
+END;
+
+BEGIN
+    findMinP(a, b, c);
+    DBMS_OUTPUT.put_line('Minimum of '||a||' and '||b||' is '||c);
+END;

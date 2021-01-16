@@ -1,0 +1,48 @@
+--HOW TO ALTER SEQUENCE
+
+CREATE TABLE bank_customers
+(
+    customer_order_number NUMBER(3),
+    customer_name VARCHAR2(50)
+);
+
+CREATE SEQUENCE seq1
+START WITH 101
+INCREMENT BY 2
+MAXVALUE 105;
+
+--If you want to alter a sequence, you can alter "INCREMENT BY", "MAXVALUE", "MINVALUE", open a CYCLE
+--but you CANNOT ALTER "START WITH"
+--Note: If you need to alter "START WITH", dropping Sequence and creating it again is recommended
+
+--Increase MAXVALUE to 107
+ALTER SEQUENCE seq1
+MAXVALUE 107;
+
+INSERT INTO bank_customers VALUES(seq1.NEXTVAL, '&customer_name');
+
+SELECT * FROM bank_customers;
+
+DELETE FROM bank_customers;
+
+--Update "INCREMENT BY" to 1
+DROP SEQUENCE seq1;
+
+ALTER SEQUENCE seq1
+INCREMENT BY 1;
+
+INSERT INTO bank_customers VALUES(seq1.NEXTVAL, '&customer_name');
+
+SELECT * FROM bank_customers;
+
+DELETE FROM bank_customers;
+
+--Open a CYCLE
+--When you open a CYCLE if you do not declare MINVALUE, CYCLE starts with 1
+ALTER SEQUENCE seq1
+CYCLE
+CACHE 3;
+
+INSERT INTO bank_customers VALUES(seq1.NEXTVAL, '&customer_name');
+
+SELECT * FROM bank_customers;

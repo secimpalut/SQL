@@ -1,0 +1,161 @@
+--Constraints are some restrictions for fields
+--1)Primary Key
+--2)Foreign Key ==> Repeated data and multiple null are allowed
+--3)Unique ==> Unique Data, but you can use "null" multiple times.
+--4)Not Null
+--5)Check
+
+--Create a workers table whose fields are id(char size is 5), name(varchar2 size is 50), salary(number precision is 5, scale is 0)
+--hiring_date(date)
+CREATE TABLE workers
+(
+    id char(5),
+    name varchar2(50) UNIQUE,
+    salary number(5) NOT NULL,          --number(5,0) is same with number(5)
+    hiring_date date,
+    CONSTRAINT id1_pk PRIMARY KEY(id)
+);
+
+INSERT INTO workers VALUES('10001', 'Ali Can', 700, '13-Apr-18');
+INSERT INTO workers VALUES('10002', null, 12000, '14-Apr-18');
+INSERT INTO workers VALUES('10003', null, 5000, '14-Apr-18');
+INSERT INTO workers VALUES(null, 'Veli Han', 5000, '14-Apr-18');
+
+
+SELECT * FROM workers;
+
+--Create addresses table whose fields are id(char size is 5), street(varchar2 size 30), city(varchar2 size 15), state(char size is 2) 
+CREATE TABLE addresses
+(
+    id CHAR(5),
+    street VARCHAR2(30),
+    city VARCHAR2(15),
+    state char(2),
+    CONSTRAINT id_fk FOREIGN KEY(id) REFERENCES workers(id)
+);
+
+INSERT INTO addresses VALUES('10001', 'Flower', 'Miami', 'FL');
+INSERT INTO addresses VALUES('10001', 'Orange', 'Jacksonville', 'FL');
+INSERT INTO addresses VALUES(null, 'Apple', 'Tampa', 'FL');
+INSERT INTO addresses VALUES(null, 'Apricot', 'St.Lucie', 'FL');
+
+SELECT * FROM addresses;
+
+--Create parents table whose fields are id(char size is 5), num_of_kids(number precision 2), name_of_spouse(varchar2 size 50)
+CREATE TABLE parents
+(
+    id char(5),
+    num_of_kids number(2),
+    name_of_spouse varchar2(50),
+    CONSTRAINT id2_fk FOREIGN KEY(id) REFERENCES workers(id),
+    CONSTRAINT check_num_of_kids CHECK(num_of_kids>=0)
+);
+
+INSERT INTO parents VALUES('10001', 4, 'Ayse');
+INSERT INTO parents VALUES('10002', -2, 'Emine');
+
+SELECT * FROM parents;
+
+--Create a suppliers table whose fields are supplier_id(number size is 10, Primary Key), supplier_name(varchar2 size is 50), 
+--contact_name(varchar2 size is 50)
+
+CREATE TABLE suppliers
+(
+    supplier_id NUMBER(10),
+    supplier_name VARCHAR2(50),
+    contact_name VARCHAR2(50),
+    CONSTRAINT supplier_id_pk PRIMARY KEY(supplier_id) 
+);
+
+INSERT INTO suppliers VALUES(1, 'IBM', 'John Walker');
+INSERT INTO suppliers VALUES(2, 'APPLE', 'Steve Max');
+INSERT INTO suppliers VALUES(3, 'SAMSUNG', 'Tae Shaun');
+
+SELECT * FROM suppliers;
+
+--How to update a specific data in a table
+UPDATE suppliers
+SET contact_name = 'Ali Can'
+WHERE supplier_id=1;
+
+--How to update multiple data in a table
+UPDATE suppliers
+SET supplier_name = 'WINDOWS',
+    contact_name = 'Mary Star'
+WHERE supplier_id = 2;    
+
+--How to update multiple records in a table
+UPDATE suppliers
+SET contact_name = 'Veli Han'
+WHERE supplier_id>1;
+
+UPDATE suppliers
+SET supplier_id = 1
+WHERE contact_name='Ali Can';
+
+--Update the table to the beginning state
+UPDATE suppliers
+SET contact_name = 'John Walker'
+WHERE supplier_id = 1;
+
+UPDATE suppliers
+SET supplier_name = 'APPLE',
+    contact_name = 'Steve Max'
+WHERE supplier_id = 2;
+
+UPDATE suppliers
+SET contact_name = 'Tae Shaun'
+WHERE supplier_id = 3;
+
+--Create products table whose fields are supplier_id(number size is 10 Foreign Key), product_id(number size is 10),
+--product_name(varchar2 size is 30), customer_name(varchar2 size is 50)
+CREATE TABLE products2
+(
+    supplier_id NUMBER(10),
+    product_id NUMBER(10),
+    product_name VARCHAR2(30),
+    customer_name VARCHAR2(50),
+    CONSTRAINT supplier_id_fk FOREIGN KEY(supplier_id) REFERENCES suppliers(supplier_id)
+);
+
+INSERT INTO products2 VALUES(1, 11, 'Laptop', 'Ali Can');
+INSERT INTO products2 VALUES(2, 22, 'Ipad', 'Eddie Murphy');
+INSERT INTO products2 VALUES(3, 33, 'Galaxy 12', 'Mary Star');
+
+SELECT * FROM products2;
+
+--Change Ali Can to John Walker
+UPDATE products2
+SET customer_name = 'John Walker'
+WHERE supplier_id = 1;
+
+-- Update the name of the product to "Radio" if the contact name is 'John Walker' 
+UPDATE products2
+SET product_name = 'Radio'
+WHERE supplier_id = (SELECT supplier_id
+                     FROM suppliers
+                     WHERE contact_name='John Walker') ;
+
+--Update the contact name to 'Ali Can' if the product name is Ipad
+UPDATE suppliers
+SET contact_name = 'Ali Can'
+WHERE supplier_id = (SELECT supplier_id
+                     FROM products2
+                     WHERE product_name = 'Ipad'
+                     );
+
+--Update the customer name to 'Ayse Han' if the supplier name is SAMSUNG
+UPDATE products2
+SET customer_name = 'Ayse Han'
+WHERE supplier_id = (SELECT supplier_id
+                     FROM suppliers
+                     WHERE supplier_name='SAMSUNG'      
+                     );
+
+--Update the SUPPLIER name to 'GOOGLE' if the CUSTOMER name is Eddie Murphy
+UPDATE suppliers
+SET supplier_name = 'GOOGLE'
+WHERE supplier_id = (SELECT supplier_id
+                     FROM products2
+                     WHERE customer_name = 'Eddie Murphy'
+                    );

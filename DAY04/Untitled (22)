@@ -1,0 +1,17 @@
+--Select the third highest salary from workers table
+SELECT MAX(salary) AS third_highest_salary 
+FROM workers
+WHERE salary < (SELECT MAX(salary) 
+                FROM workers
+                WHERE salary < (SELECT MAX(salary) 
+                                FROM workers));
+                                
+--Select all records whose salary is the third highest salary from workers table
+SELECT * 
+FROM workers
+WHERE salary = (SELECT MAX(salary) 
+                FROM workers
+                WHERE salary < (SELECT MAX(salary) 
+                                FROM workers
+                                WHERE salary < (SELECT MAX(salary) 
+                                                FROM workers)));

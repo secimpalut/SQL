@@ -1,0 +1,315 @@
+CREATE TABLE customers_products
+( 
+  product_id number(10),
+  customer_name varchar2(50),
+  product_name varchar2(50)
+);
+
+INSERT INTO customers_products VALUES (10, 'Mark', 'Orange');
+INSERT INTO customers_products VALUES (10, 'Mark', 'Orange');
+INSERT INTO customers_products VALUES (20, 'John', 'Apple');
+INSERT INTO customers_products VALUES (30, 'Amy', 'Palm');
+INSERT INTO customers_products VALUES (20, 'Mark', 'Apple');
+INSERT INTO customers_products VALUES (10, 'Adem', 'Orange');
+INSERT INTO customers_products VALUES (40, 'John', 'Apricot');
+INSERT INTO customers_products VALUES (20, 'Eddie', 'Apple'); 
+
+SELECT * FROM customers_products;
+
+CREATE TABLE customers_likes
+( 
+  product_id number(10),
+  customer_name varchar2(50),
+  liked_product varchar2(50)
+); 
+
+INSERT INTO customers_likes VALUES (10, 'Mark', 'Orange');
+INSERT INTO customers_likes VALUES (50, 'Mark', 'Pineapple');
+INSERT INTO customers_likes VALUES (60, 'John', 'Avocado');
+INSERT INTO customers_likes VALUES (30, 'Lary', 'Cherries');
+INSERT INTO customers_likes VALUES (20, 'Mark', 'Apple');
+INSERT INTO customers_likes VALUES (10, 'Adem', 'Orange');
+INSERT INTO customers_likes VALUES (40, 'John', 'Apricot');
+INSERT INTO customers_likes VALUES (20, 'Eddie', 'Apple');
+
+SELECT * FROM customers_likes;
+
+--EXISTS Condition is used before subquery and after WHERE Clause.
+--If the subquery returns any data Exists Condition triggers the query.
+SELECT product_id, customer_name
+FROM customers_products
+WHERE EXISTS (SELECT product_id
+              FROM customers_likes
+              WHERE customers_products.product_id = customers_likes.product_id);
+              
+--How to use Subquery after SELECT before FROM
+
+CREATE TABLE workers
+(
+    id CHAR(5),
+    name VARCHAR2(50),
+    salary NUMBER(5),
+    CONSTRAINT id4_pk PRIMARY KEY(id)
+);
+
+INSERT INTO workers VALUES(10001, 'Ali Can', 12000);
+INSERT INTO workers VALUES(10002, 'Veli Han', 2000);
+INSERT INTO workers VALUES(10003, 'Mary Star', 7000);
+INSERT INTO workers VALUES(10004, 'Angie Ocean', 8500);
+INSERT INTO workers VALUES(10005, 'Tam Hanks', 17000);
+INSERT INTO workers VALUES(10006, 'Eddie Murphy', 9200);
+INSERT INTO workers VALUES(10007, 'Mark J', 5000);
+INSERT INTO workers VALUES(10008, 'Walker Tom', 7200);
+INSERT INTO workers VALUES(10009, 'Adem Star', 7000);
+INSERT INTO workers VALUES(10010, 'Bob Tom', 7000);
+
+--Create a report to display worker name, worker salary, and average for every record.
+SELECT name, salary, (SELECT AVG(salary) FROM workers)average_salary
+FROM workers;
+
+--Create a report to display name, salary, maximum salary, minimum salary for every record
+SELECT name, salary, (SELECT MAX(salary) FROM workers)max_salary, (SELECT MIN(salary) FROM workers)min_salary
+FROM workers;
+
+                                                        --LIKE Condition
+--1)WildCards (%, _)
+--Select records from workers table if the workers name starts with 'A'
+-- % is used for zero or more characters
+-- _ is used for single character
+SELECT *
+FROM workers
+WHERE name LIKE 'A%';
+
+--Select records from workers table if the workers name ends with 'n'
+SELECT *
+FROM workers
+WHERE name LIKE '%n';
+
+SELECT * FROM workers;
+
+--Select records from workers table if the workers name has 'an' in any position
+SELECT *
+FROM workers
+WHERE name LIKE '%an%';
+
+--Select records whose names start with any character followed by 'a'
+SELECT *
+FROM workers
+WHERE name LIKE '_a%';
+
+--Select records whose names 2nd character is 'a', 4th character is 'k'
+SELECT * 
+FROM workers
+WHERE name LIKE '_a_k%';
+
+--Select records whose names 3rd character is 'r' and have 6 characters in total 
+SELECT *
+FROM workers
+WHERE name LIKE '__r___';
+
+--Select records whose names 3rd character is 'r' and have at least 6 characters in total
+SELECT *
+FROM workers
+WHERE name LIKE '__r___%';
+
+--Select records whose names are starting with A, ending with 'n' and have at least 8 characters
+SELECT * FROM workers
+WHERE name LIKE('A______%n');
+
+--2)REGEX(Regular Expressions)
+
+CREATE TABLE words
+(
+    word_id CHAR(3),
+    word VARCHAR2(15),
+    word_length NUMBER(2)
+);
+
+INSERT INTO words VALUES('101', 'hat', 3);
+INSERT INTO words VALUES('102', 'hot', 3);
+INSERT INTO words VALUES('103', 'hit', 3);
+INSERT INTO words VALUES('104', 'hut', 3);
+INSERT INTO words VALUES('104', 'selena', 6);
+INSERT INTO words VALUES('104', 'yusuf', 5);
+INSERT INTO words VALUES('104', 'adem', 4);
+INSERT INTO words VALUES('104', 'hct', 3);
+
+SELECT * FROM words;
+
+--Select the words which start with 'h', ends with 't' and middle character is 'a' or 'i' or 'o'
+--1.Way: Recommended
+SELECT *
+FROM words
+WHERE REGEXP_LIKE(word ,'h[aio]t');
+
+--2.Way:
+SELECT *
+FROM words
+WHERE REGEXP_LIKE(word ,'h(a|o|i)t');
+
+--Select the words starting with 'h', ending with 't' and 2nd character is from a to i in alphabet, number of characters is 3 in total
+SELECT *
+FROM words
+WHERE REGEXP_LIKE(word, 'h[a-i]t');
+
+--Select the words contain 'a' or 'e' in any position
+SELECT *
+FROM words
+WHERE REGEXP_LIKE(word, '[ae](*)'); -- '[ae](*)' and '[ae]' are same but '[ae](*)' is better to use
+
+--Select the words start with 's' or 'y' or 'a' (starts with  ==>  ^)
+SELECT *
+FROM words
+WHERE REGEXP_LIKE(word, '^[sya](*)');
+
+--Select the words end with 'a' or 'f' or 'm'
+SELECT *
+FROM words
+WHERE REGEXP_LIKE(word, '[afm]$(*)');
+
+--Select the words start with 's' end with 'a'
+SELECT *
+FROM words
+WHERE REGEXP_LIKE(word, '^[s].*[a]$(*)');
+
+
+--NOT LIKE Condition
+
+--Select the words not start with 'h'
+SELECT *
+FROM words
+WHERE word NOT LIKE 'h%';
+
+--Select the words not end with 't'
+SELECT *
+FROM words
+WHERE word NOT LIKE '%t';
+
+--Select the words do not contain 'a' in any position
+SELECT *
+FROM words
+WHERE word NOT LIKE '%a%';
+
+--Select the words start with any character, not followed by 'at'
+SELECT *
+FROM words
+WHERE word NOT LIKE '_at%';
+
+--NOT REGEXP_LIKE Condition
+
+--Select the words starting with any character, not followed by 'a' or 'o' or 'i'
+SELECT *
+FROM words
+WHERE NOT REGEXP_LIKE(word,'[_aoi](*)'); 
+
+--ORDER BY Clause
+--ORDER BY puts the records in ascending order as default
+--If you want to put them in descending order type DESC at the end
+SELECT * 
+FROM workers
+ORDER BY name DESC;
+
+--Select records of the workers whose salary is less than the average salary and put them in descending order.
+SELECT *
+FROM workers
+WHERE salary < (SELECT AVG(salary) FROM workers)
+ORDER BY salary DESC;
+
+--Select records of the workers put them in descending order by using salary and put them in ascending order by using names.
+SELECT * 
+FROM workers
+ORDER BY salary DESC, name ASC;
+
+
+CREATE TABLE employees1 
+(  
+  employee_id number(9), 
+  employee_first_name varchar2(20),
+  employee_last_name varchar2(20)
+);
+
+INSERT INTO employees1 VALUES(14, 'Chris', 'Tae');
+INSERT INTO employees1 VALUES(11, 'John', 'Walker');
+INSERT INTO employees1 VALUES(12, 'Amy', 'Star');
+INSERT INTO employees1 VALUES(13, 'Brad', 'Pitt');
+INSERT INTO employees1 VALUES(15, 'Chris', 'Way');
+
+CREATE TABLE addresses 
+(  
+  employee_id number(9), 
+  street varchar2(20),
+  city varchar2(20),
+  state char(2),
+  zipcode char(5)
+);
+
+INSERT INTO addresses VALUES(11, '32nd Star 1234', 'Miami', 'FL', '33018');
+INSERT INTO addresses VALUES(12, '23rd Rain 567', 'Jacksonville', 'FL', '32256');
+INSERT INTO addresses VALUES(13, '5th Snow 765', 'Hialeah', 'VA', '20121');
+INSERT INTO addresses VALUES(14, '3rd Man 12', 'Weston', 'MI', '12345');
+INSERT INTO addresses VALUES(15, '11th Chris 12', 'St. Johns', 'FL', '32259');
+
+--Sometimes instead of using table names we use nick names(Aliases) for the tables to make the code shorter
+SELECT e.employee_first_name, e.employee_last_name, a.city
+FROM employees1 e, addresses a
+WHERE e.employee_id = a.employee_id;
+
+--GROUP BY
+CREATE TABLE employees2 
+(  
+  id number(9), 
+  name varchar2(50), 
+  state varchar2(50), 
+  salary number(20),
+  company varchar2(20)
+);
+
+INSERT INTO employees2 VALUES(123456789, 'John Walker', 'Florida', 2500, 'IBM');
+INSERT INTO employees2 VALUES(234567890, 'Brad Pitt', 'Florida', 1500, 'APPLE');
+INSERT INTO employees2 VALUES(345678901, 'Eddie Murphy', 'Texas', 3000, 'IBM');
+INSERT INTO employees2 VALUES(456789012, 'Eddie Murphy', 'Virginia', 1000, 'GOOGLE');
+INSERT INTO employees2 VALUES(567890123, 'Eddie Murphy', 'Texas', 7000, 'MICROSOFT');
+INSERT INTO employees2 VALUES(456789012, 'Brad Pitt', 'Texas', 1500, 'GOOGLE');
+INSERT INTO employees2 VALUES(123456710, 'Mark Stone', 'Pennsylvania', 2500, 'IBM');
+
+SELECT * FROM employees2;
+
+--Create a report which displays total salary of all employees
+SELECT name, SUM(salary) AS total_salary
+FROM employees2
+GROUP BY name;
+
+--Create a report which displays the total number of employees for every state
+SELECT state, COUNT(name) AS num_of_employee
+FROM employees2
+GROUP BY state;
+
+--Create a report which displays the number of employees whose salary is greater than 2000 for every company
+SELECT company, COUNT(name) AS num_of_employee
+FROM employees2
+WHERE salary > 2000
+GROUP BY company;
+
+--Create a report which displays the max and min salaries for every company
+SELECT company , MAX(salary) AS MaxS, MIN(salary) AS MinS
+FROM employees2
+GROUP BY company;
+
+--1)LIKE Condition
+--      a)WildCards
+--      b)Regexp
+
+--2)NOT LIKE Condition
+--      a)WildCards
+--      b)Regexp
+
+--3)Aliases for table names
+
+--4)ORDER BY 
+--     a)DESC
+--     b)ASC
+--     c)By column name and Column number
+
+--5)GROUP BY
+
+--6)Subquery after SELECT before FROM

@@ -1,0 +1,297 @@
+--HAVING Clause
+--Having Clause is used after Group By to filter the result
+--Having Clause is used together with Aggregate Functions(SUM(), AVG(), MAX(), MIN(), COUNT())
+
+CREATE TABLE employees1 
+(  
+  id number(9), 
+  name varchar2(50), 
+  state varchar2(50), 
+  salary number(20),
+  company varchar2(20)
+);
+
+INSERT INTO employees1 VALUES(123456789, 'John Walker', 'Florida', 2500, 'IBM');
+INSERT INTO employees1 VALUES(234567890, 'Brad Pitt', 'Florida', 1500, 'APPLE');
+INSERT INTO employees1 VALUES(345678901, 'Eddie Murphy', 'Texas', 3000, 'IBM');
+INSERT INTO employees1 VALUES(456789012, 'Eddie Murphy', 'Virginia', 1000, 'GOOGLE');
+INSERT INTO employees1 VALUES(567890123, 'Eddie Murphy', 'Texas', 7000, 'MICROSOFT');
+INSERT INTO employees1 VALUES(456789012, 'Brad Pitt', 'Texas', 1500, 'GOOGLE');
+INSERT INTO employees1 VALUES(123456710, 'Mark Stone', 'Pennsylvania', 2500, 'IBM');
+
+SELECT * FROM employees1;
+
+--Display employee names and total income if the total income is greater than 2500
+SELECT name, SUM(salary) AS total_income
+FROM employees1
+GROUP BY name
+HAVING SUM(salary) > 2500;
+
+--Display number of employees and states whose total employees are greater than 1
+SELECT state, COUNT(name)
+FROM employees1
+GROUP BY state
+HAVING COUNT(name) > 1;
+
+--Display company names and minimum salary if the minimum salary is greater than 2000
+SELECT company, MIN(salary) AS min_salary
+FROM employees1
+GROUP BY company
+HAVING MIN(salary) > 2000;
+
+--Display company names, minimum salary, and maximum salary if the maximum salary is less than 5000
+SELECT company , MIN(salary) AS min_salary, MAX(salary) AS max_salary
+FROM employees1
+GROUP BY company
+HAVING MAX(salary)<5000;
+
+--Display company names, number of employees, and total income of companies if the total income is less than 6000
+SELECT company, COUNT(name) AS num_of_employees, SUM(salary) AS total_income
+FROM employees1
+GROUP BY company
+HAVING SUM(salary) < 6000;
+
+                                                --UNION Operation
+--It is used between 2 SELECT Queries 
+--It returns all elements, if some elements are repeated they are returned just once.
+
+SELECT *
+FROM employees1
+WHERE salary > 2800
+
+UNION
+
+SELECT *
+FROM employees1
+WHERE salary < 5000;
+
+--Use union operator for the following two queries
+--1)Records whose employee names length is less than 12
+--2)Records whose state names length is less than 6
+SELECT *
+FROM employees1
+WHERE LENGTH(name) < 12
+
+UNION
+
+SELECT *
+FROM employees1
+WHERE LENGTH(state) <6;
+
+                                --INTERSECT Operation
+SELECT *
+FROM employees1
+WHERE LENGTH(name) < 12
+
+INTERSECT
+
+SELECT *
+FROM employees1
+WHERE LENGTH(state) <6;
+
+
+SELECT *
+FROM employees1
+WHERE salary > 2800
+
+INTERSECT
+
+SELECT *
+FROM employees1
+WHERE salary < 5000;
+
+                            --MINUS Operation
+--Display records whose salaries are less than 2800 but not in GOOGLE
+SELECT *
+FROM employees1
+WHERE salary < 2800
+
+MINUS
+
+SELECT *
+FROM employees1
+WHERE company = 'GOOGLE';
+
+--NOTE: When you use SET OPERATIONS(Union, Intersect, Minus) both queries must return 
+--1)Same number of columns. Following example gives error due to number of columns
+SELECT name, state
+FROM employees1
+WHERE salary < 2800
+
+UNION
+
+SELECT name, state, salary
+FROM employees1
+WHERE salary < 3000;
+
+--2)Corresponding columns must have same data types. Following example gives error due to data type
+SELECT name, state
+FROM employees1
+WHERE salary < 2800
+
+INTERSECT
+
+SELECT name, salary
+FROM employees1
+WHERE salary < 3000;
+
+--Following example does not give error because number of columns and data types are fine.
+--But SQL mixes the names and states, it is not good but no error
+SELECT name, state
+FROM employees1
+WHERE salary < 2800
+
+UNION
+
+SELECT state, name
+FROM employees1
+WHERE salary < 3000;
+
+--UNION ALL
+--It is like UNION just it displays the repeated data repeatedly
+
+SELECT *
+FROM employees1
+WHERE salary > 2800
+
+UNION ALL
+
+SELECT *
+FROM employees1
+WHERE salary < 5000;
+
+--JOINS ==> 1)INNER JOIN(JOIN)    2)LEFT JOIN    3)RIGHT JOIN    4)FULL JOIN     5)SELF JOIN
+
+--1)INNER JOIN: It returns common data from 2 tables. 
+CREATE TABLE companies1 
+(  
+  company_id number(9), 
+  company_name varchar2(20)
+);
+
+INSERT INTO companies1 VALUES(100, 'IBM');
+INSERT INTO companies1 VALUES(101, 'GOOGLE');
+INSERT INTO companies1 VALUES(102, 'MICROSOFT');
+INSERT INTO companies1 VALUES(103, 'APPLE');
+
+
+CREATE TABLE orders1 
+(  
+  order_id number(9),
+  company_id number(9), 
+  order_date date
+);
+
+
+INSERT INTO orders1 VALUES(11, 101, '17-Apr-2020');
+INSERT INTO orders1 VALUES(22, 102, '18-Apr-2020');
+INSERT INTO orders1 VALUES(33, 103, '19-Apr-2020');
+INSERT INTO orders1 VALUES(44, 104, '20-Apr-2020');
+INSERT INTO orders1 VALUES(55, 105, '21-Apr-2020');
+
+SELECT c.company_name, o.order_id
+FROM orders1 o INNER JOIN companies1 c
+ON c.company_id = o.company_id;
+
+--2)LEFT JOIN: It returns all data from the first table
+SELECT c.company_name, o.order_id
+FROM companies1 c LEFT JOIN orders1 o
+ON c.company_id = o.company_id;
+
+--3)RIGHT JOIN: It returns all data from the SECOND table
+SELECT c.company_name, o.order_id
+FROM companies1 c RIGHT JOIN orders1 o
+ON c.company_id = o.company_id;
+
+--4)FULL JOIN: It returns all data from the both tables
+SELECT c.company_name, o.order_id, o.order_date
+FROM companies1 c FULL JOIN orders1 o
+ON c.company_id = o.company_id;
+
+--5)SELF JOIN: 
+--a)Create 2 different Aliases for the same table
+--b)Use "INNER JOIN" or "JOIN" in the syntax
+
+CREATE TABLE employees2 
+(  
+  id number(2), 
+  name varchar2(20),
+  title varchar2(60),
+  manager_id number(2) 
+);
+
+INSERT INTO employees2 VALUES(1, 'Ali Can', 'SDET', 2);
+INSERT INTO employees2 VALUES(2, 'John Walker', 'QA', 3);
+INSERT INTO employees2 VALUES(3, 'Angie Star', 'QA Lead', 4);
+INSERT INTO employees2 VALUES(4, 'Amy Sky', 'CEO', 5);
+
+--Display employee and manager of the employee on the report
+SELECT e1.name AS employee_name, e2.name AS manager_name
+FROM employees2 e1 INNER JOIN employees2 e2
+ON e1.manager_id = e2.id;
+
+
+--PIVOT Clause
+
+CREATE TABLE customers_products
+( 
+  product_id number(10),
+  customer_name varchar2(50),
+  product_name varchar2(50)
+);
+
+INSERT INTO customers_products VALUES (10, 'Mark', 'Orange');
+INSERT INTO customers_products VALUES (10, 'Mark', 'Orange');
+INSERT INTO customers_products VALUES (20, 'John', 'Apple');
+INSERT INTO customers_products VALUES (30, 'Amy', 'Palm');
+INSERT INTO customers_products VALUES (20, 'Mark', 'Apple');
+INSERT INTO customers_products VALUES (10, 'Adem', 'Orange');
+INSERT INTO customers_products VALUES (40, 'John', 'Apricot');
+INSERT INTO customers_products VALUES (20, 'Eddie', 'Apple');
+
+--Display which customer bought how many orange, apple, palm, and appricot
+SELECT *
+FROM (SELECT product_name, customer_name FROM customers_products)
+PIVOT
+(COUNT(product_name) FOR product_name IN('Orange', 'Apple', 'Palm', 'Apricot'));
+
+--Display which product is bought how many times from which customer
+SELECT *
+FROM (SELECT product_name, customer_name FROM customers_products)
+PIVOT
+(COUNT(customer_name) FOR customer_name IN('Mark', 'Amy', 'Adem', 'John', 'Eddie'));
+
+                                        --HOW TO ALTER TABLES
+SELECT * FROM c_p;
+
+--1)ADD Column
+
+--Add a column to the customers_products table like customer_lastname
+ALTER TABLE customers_products
+ADD customer_lastname varchar2(50);
+
+--Add a column to the customers_products table like country
+ALTER TABLE customers_products
+ADD country varchar2(20) DEFAULT 'The USA';
+
+--Add 2 columns to the customers_products table like city default value is 'Miami', and county default value 'Should be inserted!'
+ALTER TABLE customers_products
+ADD (city varchar2(20) DEFAULT 'Miami',
+     county varchar2(20) DEFAULT 'Should be inserted'
+    );
+    
+--2)DROP Column: Does not support to drop multiple columns
+ALTER TABLE customers_products
+DROP COLUMN customer_lastname;
+
+ALTER TABLE customers_products
+DROP COLUMN city;
+
+--3)RENAME Column: 
+ALTER TABLE customers_products
+RENAME COLUMN product_name to fruit_name;
+
+
+--4)RENAME Table Name permanently:
+ALTER TABLE customers_products
+RENAME TO c_p;

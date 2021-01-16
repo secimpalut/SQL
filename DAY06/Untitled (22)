@@ -1,0 +1,11 @@
+CREATE TABLE students
+(
+id char(11),
+name VARCHAR2(50),
+grade number(3),
+address VARCHAR2(80),
+update_date date
+);
+
+INSERT INTO students VALUES(123456789, 'John Walker', 11, '1234 Texas', '14-Apr-2020');
+INSERT INTO students VALUES(223456789, 'Johnny Walker', 12, '1234 Florida', '14-Apr-2020');

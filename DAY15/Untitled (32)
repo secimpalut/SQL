@@ -1,0 +1,98 @@
+package h01nt.annotations;
+
+import java.util.Arrays;
+import java.util.List;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class RunnerFetch01 {
+
+	public static void main(String[] args) {
+		
+		Students01 std1 = new Students01();
+		Students01 std2 = new Students01();
+		Students01 std3 = new Students01();
+		
+		Configuration con = new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(Students01.class);
+		
+		SessionFactory sf = con.buildSessionFactory();
+		
+		Session session = sf.openSession();
+		
+		Transaction tx = session.beginTransaction();
+		
+		//To get a single record from database we can use get() method
+		//get() method uses primary key as second parameter
+//		std1 = session.get(Students01.class, 102);
+//		System.out.println(std1);
+		
+		//How to get multiple records from table?
+		//1.Way: Use get() multiple times :( ==> Not Recommended
+//		std1 = session.get(Students01.class, 101);
+//		std2 = session.get(Students01.class, 102);
+//		std3 = session.get(Students01.class, 103);
+//		
+//		System.out.println(std1);
+//		System.out.println(std2);
+//		System.out.println(std3);
+		
+		//2.Way: By using SQL Queries we may get multiple records. It is better than 1st way but not good to use.
+		//       Because we are learning Hibernate not to use SQL.
+//		String sqlQuery1 = "SELECT * FROM students_table";
+//		List<Object[]> resultList1 = session.createSQLQuery(sqlQuery1).getResultList();
+//		for(Object[] w : resultList1) {
+//			System.out.println(Arrays.toString(w));
+//		}
+		
+		//3.Way: By using HQL, we may get multiple records. Recommended One.
+		//When you use HQL, table and column names must come from java class, not from table
+//		String hqlQuery1 = "FROM Students01";
+//		List<Object> resultList2 = session.createQuery(hqlQuery1).getResultList();
+//		for(Object w : resultList2) {
+//			System.out.println(w);
+//		}
+		
+		//Fetch the record whose name is "Veli Han"
+		//1.Way: Use SQL ==> Not good to use in Hibernate
+		String sqlQuery2 = "SELECT * FROM students_table WHERE std_name = 'Veli Han'";
+		//a)If you are not sure Veli Han is unique;
+//		List<Object[]> resultList3 = session.createSQLQuery(sqlQuery2).getResultList();
+//		for(Object[] w : resultList3) {
+//			System.out.println(Arrays.toString(w));
+//		}
+		//b)If you are sure Veli Han is unique;
+//		Object[] result1 = (Object[]) session.createSQLQuery(sqlQuery2).uniqueResult();
+//		System.out.println(Arrays.toString(result1));
+		
+		//2.Way: Use HQL
+		//In HQL, most of the times we use aliases
+//		String hqlQuery2 = "FROM Students01 s WHERE s.name = 'Veli Han'";
+//		Object result2 = session.createQuery(hqlQuery2).uniqueResult();
+//		System.out.println(result2);
+		
+		//By using HQL, fetch the records whose grades are 11
+		//You may use list() method as well instead of getResultList()
+//		String hqlQuery3 = "FROM Students01 s WHERE s.grade = 11";
+//		List<Object> resultList4 = session.createQuery(hqlQuery3).getResultList(); 
+//		for(Object w : resultList4) {
+//			System.out.println(w);
+//		}
+		
+		//By using HQL, fetch the students name whose grades are 11
+		String hqlQuery4 = "SELECT s.name FROM Students01 s WHERE s.grade = 11";
+		List<Object> resultList5 = session.createQuery(hqlQuery4).getResultList(); 
+		for(Object w : resultList5) {
+			System.out.println(w);
+		}
+
+		tx.commit();
+		
+		sf.close();
+		session.close();
+
+	}
+
+}

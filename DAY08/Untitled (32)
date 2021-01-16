@@ -1,0 +1,13 @@
+CREATE SEQUENCE seq1
+START WITH 101
+INCREMENT BY 2;
+
+CREATE TABLE students
+(
+    student_id NUMBER(3),
+    student_name VARCHAR2(50)
+);
+
+INSERT INTO students VALUES(SEQ1.nextval, '&student_name');
+
+SELECT * FROM students;

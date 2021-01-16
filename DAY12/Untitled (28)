@@ -1,0 +1,33 @@
+--Example: Raise the salary of a worker whose id will be entered by user.
+--         If the salary is raised print name, old salary, and new salary to the console.
+--         Use %FOUND Cursor.
+
+DECLARE
+    emp_id workers.id%TYPE := '&emp_id';
+    emp_name workers.name%TYPE;
+    emp_old_salary workers.salary%TYPE;
+    emp_new_salary workers.salary%TYPE;
+BEGIN
+    SELECT salary
+    INTO emp_old_salary
+    FROM workers
+    WHERE id = emp_id;
+
+    UPDATE workers
+    SET salary = salary*1.1
+    WHERE id = emp_id;
+    
+    SELECT name, salary
+    INTO emp_name, emp_new_salary
+    FROM workers
+    WHERE id = emp_id;
+    
+    IF SQL%FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Salary is updated '||emp_name||' - '||emp_old_salary||' - '||emp_new_salary);
+    END IF;
+    
+    EXCEPTION 
+    WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('Salary is not updated');
+        
+END;
